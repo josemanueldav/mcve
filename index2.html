@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCVE C.I.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .parallax-container {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 2px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(16, 24, 43, 0.95);
+            padding: 1rem;
+            z-index: 1000;
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: #4CA9FF;
+        }
+
+        .section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .section.visible {
+            opacity: 1;
+        }
+
+        .parallax {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform-style: preserve-3d;
+            transform: translateZ(-1px) scale(1.5);
+            overflow: hidden;
+        }
+
+        .parallax video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content {
+            position: relative;
+            max-width: 800px;
+            padding: 2rem;
+            background: rgba(16, 24, 43, 0.85);
+            border-radius: 10px;
+            transform: translateZ(0);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #inicio {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                        url('imagen1.webp') no-repeat center center;
+            background-size: cover;
+        }
+
+        #quienes-somos .parallax {
+            background: black;
+        }
+
+        #servicios {
+            min-height: 100vh;
+            padding: 100px 0;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                        url('servicios-de-datos-con-datacenter.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .services-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .services-title {
+            margin-bottom: 3rem;
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .service-card {
+            display: flex;
+            margin-bottom: 4rem;
+            background: rgba(16, 24, 43, 0.85);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .service-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .service-card:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .service-image {
+            flex: 1;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-image img, 
+        .service-image video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.5s ease;
+        }
+
+        .service-card:hover .service-image img,
+        .service-card:hover .service-image video {
+            transform: scale(1.05);
+        }
+
+        .service-content {
+            flex: 1;
+            padding: 2.5rem;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .service-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #4CA9FF;
+        }
+
+        .service-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #4CA9FF;
+        }
+
+        .clients {
+            background: #10182B;
+            padding: 4rem 0;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .clients.visible {
+            opacity: 1;
+        }
+
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .client-logo {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            height: 160px;
+        }
+
+        .client-logo::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg, 
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transition: all 0.6s ease;
+            transform: rotate(45deg);
+        }
+
+        .client-logo:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .client-logo:hover::before {
+            top: 100%;
+            left: 100%;
+        }
+
+        .client-logo img {
+            max-width: 150px;
+            height: auto;
+            filter: grayscale(100%);
+            transition: filter 0.5s ease;
+        }
+
+        .client-logo:hover img {
+            filter: grayscale(0%);
+        }
+
+        .contact-form {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .form-group.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4CA9FF;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #4CA9FF;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #3b86cc;
+            transform: translateY(-2px);
+        }
+
+        .site-footer {
+  background-color: #222;
+  color: #fff;
+  padding: 40px 0 20px;
+  margin-top: 50px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.footer-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.footer-logo img {
+  max-width: 150px;
+}
+
+.footer-nav {
+  margin-bottom: 30px;
+}
+
+.footer-menu {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-menu li {
+  margin: 0 15px 10px;
+}
+
+.footer-menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.footer-menu a:hover {
+  color: #3498db;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #444;
+  flex-wrap: wrap;
+}
+
+.footer-bottom p {
+  margin: 0 0 10px 0;
+}
+
+.social-links a {
+  color: #fff;
+  margin-left: 15px;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+  color: #3498db;
+}
+
+@media (max-width: 768px) {
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .social-links {
+    margin-top: 15px;
+  }
+  
+  .social-links a:first-child {
+    margin-left: 0;
+  }
+}
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .content {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .service-card {
+                flex-direction: column !important;
+            }
+
+            .service-image {
+                min-height: 200px;
+            }
+        }
+        .site-header {
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  max-height: 50px;
+}
+
+/* Hamburger Menu Styles */
+.hamburger-menu {
+  display: block;
+  cursor: pointer;
+}
+
+.menu-toggle {
+  width: 30px;
+  height: 25px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: #333;
+  border-radius: 3px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Novel Effect - Rotating bars with different origins */
+.menu-toggle.active .bar:nth-child(1) {
+  transform: translateY(11px) rotate(45deg);
+  transform-origin: center;
+}
+
+.menu-toggle.active .bar:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.menu-toggle.active .bar:nth-child(3) {
+  transform: translateY(-11px) rotate(-45deg);
+  transform-origin: center;
+}
+
+/* Mobile Menu Styles */
+.mobile-nav {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  overflow: hidden;
+  transition: height 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+  z-index: 999;
+}
+
+.mobile-nav.open {
+  height: calc(100vh - 80px);
+}
+
+.mobile-menu {
+  list-style: none;
+  padding: 20px;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.5s ease;
+  transition-delay: 0.2s;
+}
+
+.mobile-nav.open .mobile-menu {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mobile-menu li {
+  margin: 20px 0;
+  text-align: center;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.3s ease;
+}
+
+.mobile-nav.open .mobile-menu li {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Staggered animation for menu items */
+.mobile-nav.open .mobile-menu li:nth-child(1) { transition-delay: 0.2s; }
+.mobile-nav.open .mobile-menu li:nth-child(2) { transition-delay: 0.3s; }
+.mobile-nav.open .mobile-menu li:nth-child(3) { transition-delay: 0.4s; }
+.mobile-nav.open .mobile-menu li:nth-child(4) { transition-delay: 0.5s; }
+.mobile-nav.open .mobile-menu li:nth-child(5) { transition-delay: 0.6s; }
+.mobile-nav.open .mobile-menu li:nth-child(6) { transition-delay: 0.7s; }
+
+.mobile-menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 500;
+  display: block;
+  padding: 10px;
+  position: relative;
+}
+
+.mobile-menu a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #3498db;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu a:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Desktop Menu Hidden on Mobile */
+@media (min-width: 992px) {
+  .hamburger-menu {
+    display: none;
+  }
+  
+  .mobile-nav {
+    position: static;
+    height: auto;
+    background-color: transparent;
+    width: auto;
+    overflow: visible;
+  }
+  
+  .mobile-menu {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .mobile-menu li {
+    margin: 0 15px;
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .mobile-menu a {
+    color: #333;
+    font-size: 16px;
+  }
+  
+  .mobile-menu a:hover {
+    color: #3498db;
+  }
+}
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 45px;
+  height: 45px;
+  background-color: rgba(52, 152, 219, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+}
+
+.back-to-top:hover {
+  background-color: rgba(52, 152, 219, 1);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.back-to-top:active {
+  transform: translateY(-1px);
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animación suave del botón */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+  }
+}
+
+.back-to-top.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 768px) {
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+}
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+          <div class="logo">
+            <a href="index.html"><img src="logo-header.png" alt="Site Logo"></a>
+            
+          </div>
+          
+          <div class="hamburger-menu">
+            <div class="menu-toggle">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+            </div>
+          </div>
+          
+          <nav class="mobile-nav">
+            <ul class="mobile-menu">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="services.html">Services</a></li>
+              <li><a href="portfolio.html">Portfolio</a></li>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+    <div class="parallax-container">
+        <section id="inicio" class="section">
+            <div class="parallax"></div>
+            <div class="content">
+                <h1>MCVE C.I. S.A. de C.V.</h1>
+                <p>Empresa 100% mexicana con amplia experiencia en la Integración de Sistemas de Telecomunicaciones.</p>
+            </div>
+        </section>
+
+        <section id="quienes-somos" class="section">
+            <div class="parallax">
+                <video autoplay muted loop playsinline>
+                    <source src="video3.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="content">
+                <h2>¿Quiénes Somos?</h2>
+                <p>Brindamos soluciones de infraestructura y tecnología basadas en normas internacionales de ingeniería en telecomunicaciones para contribuir al desarrollo de México y su empresa.</p>
+            </div>
+        </section>
+
+        <section id="servicios" class="section">
+            <div class="services-container">
+                <h2 class="services-title">Nuestros Servicios</h2>
+                
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="parallax-image.webp" alt="Infraestructura de Redes">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon">📡</div>
+                        <h3 class="service-title">Infraestructura de Redes</h3>
+                        <p class="service-description">Diseñamos e implementamos infraestructuras de red escalables y seguras que satisfacen las necesidades específicas de su empresa. Nuestras soluciones incluyen redes LAN/WAN, redes inalámbricas, y sistemas de cableado estructurado utilizando las últimas tecnologías del mercado.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-image">
+                        <video autoplay muted loop playsinline>
+                            <source src="video1.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon">🔒</div>
+                        <h3 class="service-title">Seguridad Informática</h3>
+                        <p class="service-description">Protegemos su información con soluciones de seguridad avanzadas. Ofrecemos servicios de auditoría, implementación de firewalls, sistemas de detección de intrusiones, VPNs y políticas de seguridad personalizadas para mantener sus datos a salvo de amenazas.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-image">
+                        <div style="width:100%; height:100%; position:relative; overflow:hidden; background:#123;">
+                            <svg width="100%" height="100%" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="50" y="50" width="300" height="200" rx="10" fill="#1a2b47" />
+                                <circle cx="100" cy="100" r="30" fill="#4CA9FF" opacity="0.8">
+                                    <animate attributeName="cy" values="100;90;100" dur="3s" repeatCount="indefinite" />
+                                </circle>
+                                <circle cx="200" cy="100" r="30" fill="#4CA9FF" opacity="0.8">
+                                    <animate attributeName="cy" values="100;110;100" dur="2.5s" repeatCount="indefinite" />
+                                </circle>
+                                <circle cx="300" cy="100" r="30" fill="#4CA9FF" opacity="0.8">
+                                    <animate attributeName="cy" values="100;90;100" dur="2s" repeatCount="indefinite" />
+                                </circle>
+                                <path d="M100 150 Q200 180 300 150" stroke="#4CA9FF" stroke-width="4" fill="none">
+                                    <animate attributeName="d" values="M100 150 Q200 180 300 150;M100 150 Q200 190 300 150;M100 150 Q200 180 300 150" dur="5s" repeatCount="indefinite" />
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon">☁️</div>
+                        <h3 class="service-title">Soluciones en la Nube</h3>
+                        <p class="service-description">Transforme su negocio con nuestras soluciones de computación en la nube. Ofrecemos servicios de migración, administración y optimización en plataformas como AWS, Azure y Google Cloud. Nuestras soluciones en la nube le permiten escalar recursos según sus necesidades, reducir costos y mejorar la disponibilidad.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="serviciosnube.jpg" alt="Telecomunicaciones Avanzadas">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon">📱</div>
+                        <h3 class="service-title">Telecomunicaciones Avanzadas</h3>
+                        <p class="service-description">Implementamos sistemas de comunicación unificada que integran voz, datos y video. Nuestras soluciones incluyen telefonía IP, videoconferencia, y centros de contacto que mejoran la colaboración y la productividad en su organización.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="clients">
+          <h2>Nuestros Clientes</h2>
+          <div class="clients-grid">
+              <div class="client-logo">
+                  <img src="client-logo1.png" alt="Cliente 1">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo2b.png" alt="Cliente 2">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo3.png" alt="Cliente 3">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo4.png" alt="Cliente 4">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo4.png" alt="Cliente 4">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo5.png" alt="Cliente 4">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo6.png" alt="Cliente 4">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo7.png" alt="Cliente 4">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo8.png" alt="Cliente 4">
+              </div>
+              <div class="client-logo">
+                  <img src="client-logo9.png" alt="Cliente 4">
+              </div>
+          </div>
+      </section>
+
+        <section id="contacto" class="section">
+            <div class="parallax"></div>
+            <div class="content contact-form">
+                <h2>Contáctenos</h2>
+                <form id="contact-form" class="contact-form">
+                    <div class="form-group">
+                        <input type="text" 
+                               class="form-control" 
+                               placeholder="Nombre de empresa"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" 
+                               class="form-control" 
+                               placeholder="Nombre"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" 
+                               class="form-control" 
+                               placeholder="Correo Electrónico"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" 
+                               class="form-control" 
+                               placeholder="Teléfono">
+                    </div>
+                    <div class="form-group">
+                        <input type="url" 
+                               class="form-control" 
+                               placeholder="Sitio web">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" 
+                                 placeholder="Tu mensaje" 
+                                 rows="5"
+                                 required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">¡Aquí vamos!</button>
+                </form>
+            </div>
+        </section>
+    </div>
+  
+    <a href="#" id="back-to-top" class="back-to-top" aria-label="Volver al inicio">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 15l-6-6-6 6"/>
+        </svg>
+      </a>
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-logo">
+      <img src="logo.png" alt="Site Logo">
+    </div>
+    <nav class="footer-nav">
+      <ul class="footer-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Your Company. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#"><i class="fa fa-facebook"></i></a>
+        <a href="#"><i class="fa fa-twitter"></i></a>
+        <a href="#"><i class="fa fa-instagram"></i></a>
+        <a href="#"><i class="fa fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const parallaxSections = document.querySelectorAll('.parallax');
+            const sections = document.querySelectorAll('.section, .clients');
+            const contents = document.querySelectorAll('.content');
+            const clientLogos = document.querySelectorAll('.client-logo');
+            const serviceCards = document.querySelectorAll('.service-card');
+            
+            // Parallax effect
+            window.addEventListener('scroll', function() {
+                parallaxSections.forEach(section => {
+                    const distance = window.pageYOffset;
+                    section.style.transform = `translateZ(-1px) scale(1.5) translateY(${distance * 0.15}px)`;
+                });
+            });
+
+            // Intersection Observer for fade effects
+            const fadeOptions = {
+                root: null,
+                threshold: 0.1,
+                rootMargin: '0px'
+            };
+
+            const fadeOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    } else if (!entry.target.classList.contains('service-card')) {
+                        // Don't remove visible class from service cards when they leave viewport
+                        entry.target.classList.remove('visible');
+                    }
+                });
+            }, fadeOptions);
+
+            // Observe sections
+            sections.forEach(section => fadeOnScroll.observe(section));
+            contents.forEach(content => fadeOnScroll.observe(content));
+            
+            // Observe service cards for staggered animation
+            serviceCards.forEach((card, index) => {
+                setTimeout(() => {
+                    fadeOnScroll.observe(card);
+                }, index * 300);
+            });
+
+            // Delayed observation for client logos
+            clientLogos.forEach((logo, index) => {
+                setTimeout(() => {
+                    fadeOnScroll.observe(logo);
+                    // Add floating animation with different delays
+                    logo.style.animation = `float ${3 + Math.random()}s ease-in-out infinite`;
+                    logo.style.animationDelay = `${index * 0.2}s`;
+                }, index * 200);
+            });
+
+            // Observe form groups for staggered animation
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                setTimeout(() => {
+                    fadeOnScroll.observe(group);
+                }, index * 100);
+            });
+
+            // Form submission handling
+            document.getElementById('contact-form')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Add your form submission logic here
+                alert('Formulario enviado con éxito!');
+            });
+
+            // Smooth scroll for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mobileNav = document.querySelector('.mobile-nav');
+  const menuLinks = document.querySelectorAll('.mobile-menu a');
+  
+  // Toggle menu when hamburger is clicked
+  menuToggle.addEventListener('click', function() {
+    this.classList.toggle('active');
+    mobileNav.classList.toggle('open');
+    
+    // Prevent scrolling when menu is open
+    if (mobileNav.classList.contains('open')) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  });
+  
+  // Close menu when a link is clicked
+  menuLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      menuToggle.classList.remove('active');
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener('click', function(event) {
+    const isClickInside = mobileNav.contains(event.target) || 
+                          menuToggle.contains(event.target);
+    
+    if (!isClickInside && mobileNav.classList.contains('open')) {
+      menuToggle.classList.remove('active');
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+  
+  // Add resize listener to handle window resizing
+  window.addEventListener('resize', function() {
+    if (window.innerWidth >= 992 && mobileNav.classList.contains('open')) {
+      menuToggle.classList.remove('active');
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const backToTop = document.getElementById('back-to-top');
+  
+  // Mostrar/ocultar el botón según el desplazamiento
+  window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+      backToTop.classList.add('visible');
+      
+      // Añadir la animación de pulso después de 3 segundos de visibilidad
+      setTimeout(() => {
+        if (backToTop.classList.contains('visible')) {
+          backToTop.classList.add('pulse');
+        }
+      }, 3000);
+    } else {
+      backToTop.classList.remove('visible');
+      backToTop.classList.remove('pulse');
+    }
+  });
+  
+  // Desplazamiento suave al hacer clic en el botón
+  backToTop.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Para navegadores modernos
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    
+    // Fallback para navegadores que no soportan scrollTo con behavior
+    function scrollToTop(duration) {
+      const start = window.pageYOffset;
+      const startTime = 'now' in window.performance ? performance.now() : new Date().getTime();
+      
+      function scroll() {
+        const now = 'now' in window.performance ? performance.now() : new Date().getTime();
+        const time = Math.min(1, ((now - startTime) / duration));
+        
+        window.scrollTo(0, Math.floor(time * (0 - start) + start));
+        
+        if (time < 1) {
+          requestAnimationFrame(scroll);
+        }
+      }
+      
+      requestAnimationFrame(scroll);
+    }
+    
+    // Si el navegador no soporta scrollTo con behavior, usamos la función alternativa
+    if (typeof window.scrollTo !== 'function' || typeof window.scrollTo.behavior !== 'string') {
+      scrollToTop(800); // 800ms para el desplazamiento
+    }
+  });
+  
+  // Quitar la animación de pulso al hacer hover sobre el botón
+  backToTop.addEventListener('mouseenter', function() {
+    backToTop.classList.remove('pulse');
+  });
+  
+  // Volver a añadir la animación de pulso al salir del botón si está visible
+  backToTop.addEventListener('mouseleave', function() {
+    if (backToTop.classList.contains('visible') && window.pageYOffset > 300) {
+      setTimeout(() => {
+        backToTop.classList.add('pulse');
+      }, 3000);
+    }
+  });
+});
+    </script>
+</body>
+</html>
